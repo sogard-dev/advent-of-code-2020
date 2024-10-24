@@ -7,12 +7,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const testInput = `.#.
+..#
+###`
+
 func TestPart1(t *testing.T) {
-	require.Equal(t, 0, part1(``))
-	require.Equal(t, 0, part1(utils.GetInput(t, "input.txt")))
+	require.Equal(t, 112, part1(testInput))
+	require.Equal(t, 313, part1(utils.GetInput(t, "input.txt")))
 }
 
 func TestPart2(t *testing.T) {
-	require.Equal(t, 0, part2(``))
-	require.Equal(t, 0, part2(utils.GetInput(t, "input.txt")))
+	require.Equal(t, 848, part2(testInput))
+	require.Equal(t, 2640, part2(utils.GetInput(t, "input.txt")))
 }
