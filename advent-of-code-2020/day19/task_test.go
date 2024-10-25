@@ -71,5 +71,5 @@ aaaabbaaaabbaaa
 aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
 babaaabbbaaabaababbaabababaaab
 aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba`))
-	require.Equal(t, 0, part2(utils.GetInput(t, "input.txt")))
+	require.Equal(t, 377, part2(utils.GetInput(t, "input.txt")))
 }
