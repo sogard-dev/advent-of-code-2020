@@ -1,0 +1,140 @@
+package day20
+
+import (
+	"fmt"
+	"math"
+	"strings"
+
+	"github.com/sogard-dev/advent-of-code-2020/utils"
+)
+
+type tile struct {
+	id     int
+	top    string
+	right  string
+	left   string
+	bottom string
+}
+
+func (t tile) rotateClockwise() tile {
+	return tile{
+		id:     t.id,
+		top:    t.left,
+		right:  t.top,
+		bottom: t.right,
+		left:   t.bottom,
+	}
+}
+func (t tile) flipVertical() tile {
+	return tile{
+		id:     t.id,
+		top:    reverse(t.top),
+		right:  t.left,
+		bottom: reverse(t.bottom),
+		left:   t.right,
+	}
+}
+
+func reverse(s string) string {
+	r := []rune(s)
+	for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
+		r[i], r[j] = r[j], r[i]
+	}
+	return string(r)
+}
+
+type pos struct {
+	x, y int
+}
+
+func part1(input string) int {
+	tileBlocks := strings.Split(input, "\n\n")
+	tiles := []tile{}
+	for _, tileBlock := range tileBlocks {
+		tileNumber := utils.GetAllNumbers(tileBlock)[0]
+
+		tileLines := strings.Split(tileBlock, "\n")[1:]
+		left := []rune{}
+		right := []rune{}
+		for _, s := range tileLines {
+			left = append(left, rune(s[0]))
+			right = append(right, rune(s[len(s)-1]))
+		}
+		tiles = append(tiles, tile{
+			id:     tileNumber,
+			top:    tileLines[0],
+			bottom: reverse(tileLines[len(tileLines)-1]),
+			left:   reverse(string(left)),
+			right:  string(right),
+		})
+	}
+
+	unusedTiles := map[tile]bool{}
+	for i, tile := range tiles {
+		if i > 0 {
+			unusedTiles[tile] = true
+		}
+	}
+
+	tileMap := map[pos]tile{}
+	tileMap[pos{x: 0, y: 0}] = tiles[0]
+	tileMapTodo := map[pos]bool{}
+	tileMapTodo[pos{x: 0, y: 0}] = true
+
+	testAndApply := func(thisPos pos, orgUnusedTile tile, pattern string, selector func(tile) string) {
+		doWork := func(sourceTile tile) {
+			unusedTile := sourceTile
+			for r := 0; r < 4; r++ {
+				unusedTile = unusedTile.rotateClockwise()
+				if pattern == selector(unusedTile) {
+					tileMap[thisPos] = unusedTile
+					delete(unusedTiles, orgUnusedTile)
+					tileMapTodo[thisPos] = true
+				}
+			}
+		}
+
+		doWork(orgUnusedTile)
+		doWork(orgUnusedTile.flipVertical())
+		doWork(orgUnusedTile.rotateClockwise().flipVertical())
+	}
+
+	for len(tileMapTodo) > 0 {
+		for p := range tileMapTodo {
+			sourceTile := tileMap[p]
+			for orgUnusedTile := range unusedTiles {
+				testAndApply(pos{x: p.x, y: p.y - 1}, orgUnusedTile, sourceTile.top, func(t tile) string { return t.bottom })
+				testAndApply(pos{x: p.x, y: p.y + 1}, orgUnusedTile, sourceTile.bottom, func(t tile) string { return t.top })
+				testAndApply(pos{x: p.x + 1, y: p.y}, orgUnusedTile, sourceTile.right, func(t tile) string { return t.left })
+				testAndApply(pos{x: p.x - 1, y: p.y}, orgUnusedTile, sourceTile.left, func(t tile) string { return t.right })
+			}
+
+			delete(tileMapTodo, p)
+		}
+	}
+
+	minX := math.MaxInt
+	minY := math.MaxInt
+	maxX := math.MinInt
+	maxY := math.MinInt
+	for p := range tileMap {
+		minX = min(minX, p.x)
+		maxX = max(maxX, p.x)
+		minY = min(minY, p.y)
+		maxY = max(maxY, p.y)
+	}
+
+	tl := tileMap[pos{x: minX, y: minY}].id
+	tr := tileMap[pos{x: maxX, y: minY}].id
+	bl := tileMap[pos{x: minX, y: maxY}].id
+	br := tileMap[pos{x: maxX, y: maxY}].id
+
+	return tl * bl * tr * br
+}
+
+func part2(input string) int {
+	for _, line := range strings.Split(input, "\n") {
+		fmt.Println(line)
+	}
+	return 0
+}
