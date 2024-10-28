@@ -20,7 +20,7 @@ func (q *Queue[T]) Push(elem T) {
 	newNode := node[T]{
 		val: elem,
 	}
-	if q.head == nil {
+	if q.size == 0 {
 		q.head = &newNode
 		q.tail = &newNode
 	} else {
@@ -43,6 +43,16 @@ func (q *Queue[T]) Pop() T {
 
 type Iterator[T any] struct {
 	pointer *node[T]
+}
+
+func (q *Queue[T]) Slice() []T {
+	slice := []T{}
+
+	for iter := q.Iterator(); iter.HasNext(); {
+		slice = append(slice, iter.Next())
+	}
+
+	return slice
 }
 
 func (i *Iterator[T]) Next() T {
