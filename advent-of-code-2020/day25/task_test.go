@@ -8,11 +8,7 @@ import (
 )
 
 func TestPart1(t *testing.T) {
-	require.Equal(t, 0, part1(``))
+	require.Equal(t, 14897079, part1(`5764801
+17807724`))
 	require.Equal(t, 0, part1(utils.GetInput(t, "input.txt")))
-}
-
-func TestPart2(t *testing.T) {
-	require.Equal(t, 0, part2(``))
-	require.Equal(t, 0, part2(utils.GetInput(t, "input.txt")))
 }
